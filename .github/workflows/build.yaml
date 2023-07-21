@@ -1,0 +1,56 @@
+name: Build Webchecker
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '**'
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # only use one version for the lint step
+        python-version: [3.11.2]
+    steps:
+      - uses: actions/checkout@v3
+      - id: prepare-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - id: dependencies
+        run: pip install -e .[dev]
+      - id: ruff
+        run: ruff .
+      - id: flake8
+        run: flake8 .
+      #have to skip the step
+      - id: black
+        run: black .
+
+  build:
+    runs-on: ${{ matrix.os }}
+    needs: lint
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+        os: [macos-latest, ubuntu-latest]
+    steps:
+      - id: checkout-code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: prepare-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - id: build-and-test
+        name: Build
+        run: 
+          #unfortunatelly have to skip the step
+          # pip install pytest
+          pip install -e .

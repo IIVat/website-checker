@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "websites-monitoring"
+version = "0.0.1"
+authors = [
+  { name="Illia Vatolin", email="ilya.vatolin@gmail.com" },
+]
+readme = "README.rst"
+dependencies = [
+    "aiohttp",
+    "reactivex",
+    "psycopg2_binary",
+    "psycopg_pool",
+    "python-dotenv"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    #I still have to figure out how to handle types properly in Python
+    # "mypy",
+    "pytest",
+    "isort",
+    "ruff"
+]
+
+
+[tool.black]
+line-length = 125
+target-version = ['py38', 'py39']  # 'py310' is not yet available on Fedora 34
+include = '\.pyi?$'
+exclude = '''
+/(
+  \.direnv|\.eggs|\.git|\.mypy_cache|\.venv
+)
+'''
+
+[tool.isort]
+no_sections = true
+force_alphabetical_sort = true
+combine_as_imports = true
+profile = "black"
+skip_gitignore = true
+line_length = 125
+
+[tool.ruff]
+line-length = 125
+src = ["aiven", "tests"]
+extend-select = [
+  "PL",  # Enable pylint rules
+  "UP",  # Enable pyupgrade rules
+]
+ignore = [
+  "PLR0913",  # It is too difficult to avoid "Too many arguments" error in the codebase
+  "UP032",  # Downstream has different rules for f-strings
+]
